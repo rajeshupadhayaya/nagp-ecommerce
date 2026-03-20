@@ -1,0 +1,15 @@
+# Ignore node_modules
+node_modules
+terraform
+# Ignore .next directory
+.next
+
+# Ignore development files
+npm-debug.log
+README.md
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.docx
