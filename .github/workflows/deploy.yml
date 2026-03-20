@@ -30,6 +30,10 @@ jobs:
         role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/GitHubAction-AssumeRoleWithAction
         aws-region: us-east-1
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: Download image tag artifact
       if: ${{ github.event_name == 'workflow_run' }}
       uses: actions/download-artifact@v2
@@ -42,11 +46,27 @@ jobs:
       id: image
       run: echo "tag=$(cat ${{ github.workspace }}/image-tag.txt)" >> $GITHUB_OUTPUT
 
+    - name: Build full image URL for manual deployment
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      id: manual-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ecommerce-app-repo
+        IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+      run: |
+        if [ -z "$IMAGE_TAG" ]; then
+          echo "tag=" >> $GITHUB_OUTPUT
+        elif [[ "$IMAGE_TAG" == *".dkr.ecr."* ]]; then
+          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+        else
+          echo "tag=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        fi
+
     - name: Deploy to Amazon ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ecommerce-app-task
         service: ecommerce-app-service
         cluster: ecommerce-app-cluster
-        image: ${{ github.event.inputs.image_tag || steps.image.outputs.tag }}
+        image: ${{ steps.manual-image.outputs.tag || steps.image.outputs.tag }}
         wait-for-service-stability: true
