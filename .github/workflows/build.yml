@@ -43,7 +43,7 @@ jobs:
       run: echo "${{ steps.build-image.outputs.image }}" > ${{ github.workspace }}/image-tag.txt
     
     - name: Upload image tag as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: image-tag
         path: ${{ github.workspace }}/image-tag.txt
