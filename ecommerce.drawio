@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36" version="29.6.4" pages="3">
   <diagram name="Ecomm architecture" id="QVqjA0OekauLl0sWcmvv">
-    <mxGraphModel dx="2852" dy="1650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="2037" dy="1179" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -89,7 +89,7 @@
             <mxPoint x="580" y="554.9999999999998" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="BmIYo5-kWD5qS3BsIQnV-65" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;direction=east;" value="Multi Region Private Network" vertex="1">
+        <mxCell id="BmIYo5-kWD5qS3BsIQnV-65" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;direction=east;" value="Multi Region Network" vertex="1">
           <mxGeometry height="30" width="220" x="1498" y="440" as="geometry" />
         </mxCell>
         <mxCell id="BmIYo5-kWD5qS3BsIQnV-80" edge="1" parent="1" source="BmIYo5-kWD5qS3BsIQnV-126" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;curved=1;" target="BmIYo5-kWD5qS3BsIQnV-124" value="">
@@ -113,7 +113,7 @@
           <mxGeometry height="45" width="50" x="70" y="46.5" as="geometry" />
         </mxCell>
         <mxCell id="BmIYo5-kWD5qS3BsIQnV-91" parent="1" style="outlineConnect=0;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;shape=mxgraph.aws3.lambda_function;fillColor=#5294CF;gradientColor=none;" value="Image Processor" vertex="1">
-          <mxGeometry height="63" width="60" x="858" y="1171" as="geometry" />
+          <mxGeometry height="63" width="60" x="858.5" y="1439.75" as="geometry" />
         </mxCell>
         <mxCell id="q9cm4KPN_JOLFlTVR5k1-21" edge="1" parent="1" source="BmIYo5-kWD5qS3BsIQnV-93" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="BmIYo5-kWD5qS3BsIQnV-164">
           <mxGeometry relative="1" as="geometry">
@@ -197,8 +197,9 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1637" y="1100" />
-              <mxPoint x="1058" y="1100" />
-              <mxPoint x="1058" y="1260" />
+              <mxPoint x="1340" y="1100" />
+              <mxPoint x="1340" y="1260" />
+              <mxPoint x="889" y="1260" />
             </Array>
             <mxPoint x="1827.499999999999" y="417" as="targetPoint" />
           </mxGeometry>
@@ -412,8 +413,9 @@
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1639" y="1100" />
-              <mxPoint x="1058" y="1100" />
-              <mxPoint x="1058" y="1260" />
+              <mxPoint x="1340" y="1100" />
+              <mxPoint x="1340" y="1260" />
+              <mxPoint x="889" y="1260" />
             </Array>
           </mxGeometry>
         </mxCell>
