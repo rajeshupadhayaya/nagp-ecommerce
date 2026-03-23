@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
-export default function Footer() {
+interface FooterProps {
+  version?: string;
+}
+
+export default function Footer({ version }: FooterProps) {
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Newsletter Section */}
@@ -154,9 +158,16 @@ export default function Footer() {
       <div className="border-t border-gray-800">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-center md:text-left">
-              © 2026 Shop+. All rights reserved. Made with ❤️ for fashion lovers
-            </p>
+            <div className="flex flex-col md:flex-row items-center gap-2 text-sm">
+              <p className="text-center md:text-left">
+                © 2026 Shop+. All rights reserved. Made with ❤️ for fashion lovers
+              </p>
+              {version && (
+                <span className="text-gray-500 text-xs">
+                  · Version: {version}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-4">
               <Link href="#" className="hover:text-white transition-colors">
                 <Facebook className="w-5 h-5" />

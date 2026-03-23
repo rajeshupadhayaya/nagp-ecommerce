@@ -17,6 +17,7 @@ export default function Home() {
   const featuredProducts = getFeaturedProducts();
   const specialProducts = getSpecialProducts();
   const bestsellers = getBestsellers();
+  const version = process.env.version || 'dev';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -111,7 +112,7 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer />
+      <Footer version={version} />
     </div>
   );
 }

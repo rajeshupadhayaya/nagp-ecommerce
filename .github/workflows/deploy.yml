@@ -44,33 +44,95 @@ jobs:
       with:
         name: image-tag
         path: ${{ github.workspace }}
+        run-id: ${{ github.event.workflow_run.id }}
 
     - name: Read image tag from artifact
       if: ${{ github.event_name == 'workflow_run' }}
-      id: image
-      run: echo "tag=$(cat ${{ github.workspace }}/image-tag.txt)" >> $GITHUB_OUTPUT
+      id: artifact-tag
+      run: echo "value=$(cat ${{ github.workspace }}/image-tag.txt)" >> $GITHUB_OUTPUT
 
-    - name: Build full image URL for manual deployment
-      if: ${{ github.event_name == 'workflow_dispatch' }}
-      id: manual-image
+    - name: Determine image tag to deploy
+      id: image-tag
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "value=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+        else
+          echo "value=${{ steps.artifact-tag.outputs.value }}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Build full image URL
+      id: image-url
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ecommerce-app-repo
-        IMAGE_TAG: ${{ github.event.inputs.image_tag }}
+        IMAGE_TAG: ${{ steps.image-tag.outputs.value }}
       run: |
         if [ -z "$IMAGE_TAG" ]; then
-          echo "tag=" >> $GITHUB_OUTPUT
+          echo "Error: No image tag provided"
+          exit 1
         elif [[ "$IMAGE_TAG" == *".dkr.ecr."* ]]; then
-          echo "tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "url=$IMAGE_TAG" >> $GITHUB_OUTPUT
         else
-          echo "tag=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+          echo "url=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
         fi
 
     - name: Deploy to Amazon ECS
-      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      with:
-        task-definition: ecommerce-app-task
-        service: ecommerce-app-service
-        cluster: ecommerce-app-cluster
-        image: ${{ steps.manual-image.outputs.tag || steps.image.outputs.tag }}
-        wait-for-service-stability: true
+      env:
+        CLUSTER: ecommerce-app-cluster
+        SERVICE: ecommerce-app-service
+        TASK_FAMILY: ecommerce-app-task
+        IMAGE: ${{ steps.image-url.outputs.url }}
+        IMAGE_TAG: ${{ steps.image-tag.outputs.value }}
+        CONTAINER_NAME: ecommerce-app
+      run: |
+        # Get current task definition
+        echo "Fetching current task definition..."
+        TASK_DEFINITION=$(aws ecs describe-task-definition \
+          --task-definition $TASK_FAMILY \
+          --query 'taskDefinition' \
+          --output json)
+        
+        # Update image and add version environment variable in task definition
+        echo "Creating new task definition with image: $IMAGE"
+        echo "Setting version environment variable to: $IMAGE_TAG"
+        NEW_TASK_DEF=$(echo $TASK_DEFINITION | jq \
+          --arg IMAGE "$IMAGE" \
+          --arg IMAGE_TAG "$IMAGE_TAG" \
+          --arg CONTAINER_NAME "$CONTAINER_NAME" \
+          '.containerDefinitions |= map(
+            if .name == $CONTAINER_NAME then 
+              .image = $IMAGE | 
+              .environment = (
+                (.environment // []) | 
+                map(select(.name != "version")) + 
+                [{name: "version", value: $IMAGE_TAG}]
+              )
+            else . 
+            end
+          ) | 
+          del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+        
+        # Register new task definition revision
+        echo "Registering new task definition..."
+        NEW_REVISION=$(aws ecs register-task-definition \
+          --cli-input-json "$NEW_TASK_DEF" \
+          --query 'taskDefinition.taskDefinitionArn' \
+          --output text)
+        
+        echo "New task definition: $NEW_REVISION"
+        
+        # Update service to use new task definition
+        echo "Updating ECS service..."
+        aws ecs update-service \
+          --cluster $CLUSTER \
+          --service $SERVICE \
+          --task-definition $NEW_REVISION \
+          --force-new-deployment
+        
+        # Wait for service to stabilize
+        echo "Waiting for service to stabilize..."
+        aws ecs wait services-stable \
+          --cluster $CLUSTER \
+          --services $SERVICE
+        
+        echo "Deployment completed successfully!"
