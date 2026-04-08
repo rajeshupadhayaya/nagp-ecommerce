@@ -35,12 +35,14 @@ jobs:
         ECR_REPOSITORY: ecommerce-app-repo
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+        SHORT_TAG=${IMAGE_TAG:0:8}
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$SHORT_TAG" >> $GITHUB_OUTPUT
+        echo "tag=$SHORT_TAG" >> $GITHUB_OUTPUT
     
     - name: Save image tag to file
-      run: echo "${{ github.sha }}" > ${{ github.workspace }}/image-tag.txt
+      run: echo "${{ steps.build-image.outputs.tag }}" > ${{ github.workspace }}/image-tag.txt
     
     - name: Upload image tag as artifact
       uses: actions/upload-artifact@v4
