@@ -37,7 +37,7 @@ variable "terraform_state_bucket" {
 variable "autoscaling_min_tasks" {
   description = "Minimum number of tasks for autoscaling."
   type        = number
-  default     = 1
+  default     = 0
 }
 
 variable "autoscaling_max_tasks" {
