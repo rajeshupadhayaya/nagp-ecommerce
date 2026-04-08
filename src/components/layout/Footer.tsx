@@ -1,11 +1,8 @@
 import Link from 'next/link';
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
 
-interface FooterProps {
-  version?: string;
-}
-
-export default function Footer({ version }: FooterProps) {
+export default function Footer() {
+  const version = process.env.version || 'dev';
   return (
     <footer className="bg-gray-900 text-gray-300">
       {/* Newsletter Section */}
