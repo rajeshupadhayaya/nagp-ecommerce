@@ -15,12 +15,12 @@ variable "app_port" {
 
 variable "cpu" {
   description = "The CPU units to allocate for the container."
-  default     = 256
+  default     = 2048
 }
 
 variable "memory" {
   description = "The memory to allocate for the container."
-  default     = 512
+  default     = 4096
 }
 
 variable "github_repo" {
