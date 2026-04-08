@@ -38,5 +38,8 @@ RUN --mount=type=cache,target=/root/.npm npm install --omit=dev && \
 # Expose the port the app runs on
 EXPOSE 3000
 
+# Set environment variable to bind to all interfaces
+ENV HOSTNAME="0.0.0.0"
+
 # Command to start the application
 CMD ["npm", "start"]
