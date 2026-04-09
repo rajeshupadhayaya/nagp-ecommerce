@@ -45,3 +45,4 @@ Terraform
 
 ### Apply infra
 terraform apply
+lest
