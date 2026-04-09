@@ -30,6 +30,7 @@ export default function Navigation() {
       ],
     },
     { label: 'Accessories', href: '/category/accessories' },
+    { label: 'Search', href: '/search' },
     { label: 'Sale', href: '/sale' },
     { label: 'Contact', href: '/contact' },
   ];

@@ -7,9 +7,11 @@ import { Mail, Lock, Eye, EyeOff, ChevronRight } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -59,13 +61,39 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // For demo purposes, just redirect to home
-      console.log('Login data:', formData);
-      router.push('/');
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update auth context (which also updates localStorage)
+        if (data.token && data.user) {
+          login(data.user, data.token);
+        }
+        
+        // Show success message and redirect
+        alert(`Welcome back, ${data.user.name}!`);
+        router.push('/');
+      } else {
+        // Show error message
+        setErrors({ email: data.message || 'Login failed' });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setErrors({ email: 'Network error. Please try again.' });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

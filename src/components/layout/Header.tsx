@@ -1,12 +1,32 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, Search, Heart, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ShoppingBag, Search, Heart, User, LogOut } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Header() {
+  const router = useRouter();
   const { cart } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   const itemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery)}`);
+    } else {
+      router.push('/search');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm">
@@ -19,10 +39,26 @@ export default function Header() {
               <span className="text-gray-600">your@email.com</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-gray-600 hover:text-gray-900 flex items-center">
-                <User className="w-4 h-4 mr-1" />
-                Login
-              </Link>
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <Link href="/profile" className="text-gray-600 hover:text-gray-900 flex items-center">
+                    <User className="w-4 h-4 mr-1" />
+                    Welcome, {user?.name}
+                  </Link>
+                  <button 
+                    onClick={logout}
+                    className="text-gray-600 hover:text-gray-900 flex items-center"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link href="/login" className="text-gray-600 hover:text-gray-900 flex items-center">
+                  <User className="w-4 h-4 mr-1" />
+                  Login
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -41,10 +77,16 @@ export default function Header() {
             <div className="relative w-full">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Search products..."
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <button className="absolute right-2 top-1/2 -translate-y-1/2">
+              <button 
+                onClick={handleSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 hover:text-blue-600 transition-colors"
+              >
                 <Search className="w-5 h-5 text-gray-400" />
               </button>
             </div>

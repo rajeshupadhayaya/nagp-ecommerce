@@ -7,9 +7,11 @@ import { Mail, Lock, Eye, EyeOff, User, ChevronRight } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Navigation from '@/components/layout/Navigation';
 import Footer from '@/components/layout/Footer';
+import { useAuth } from '@/context/AuthContext';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -90,13 +92,40 @@ export default function RegisterPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // For demo purposes, just redirect to login
-      console.log('Registration data:', formData);
-      router.push('/login');
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: `${formData.firstName} ${formData.lastName}`,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update auth context (which also updates localStorage)
+        if (data.token && data.user) {
+          login(data.user, data.token);
+        }
+        
+        // Show success message and redirect
+        alert('Registration successful! Welcome to Shop+');
+        router.push('/');
+      } else {
+        // Show error message
+        setErrors({ email: data.message || 'Registration failed' });
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrors({ email: 'Network error. Please try again.' });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
